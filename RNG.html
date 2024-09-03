@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모고 찍기</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 3em;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #555;
+        }
+
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .circle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            margin: 0 5px;
+            font-size: 1.5em;
+            transition: background-color 0.2s ease;
+        }
+
+        .active {
+            background-color: yellow;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        /* 팝업 스타일 */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .popup h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        /* 배경 어둡게 처리 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            .circle {
+                width: 60px;
+                height: 60px;
+                margin: 0 5px;
+                font-size: 1.2em;
+            }
+
+            button {
+                font-size: 1em;
+                padding: 8px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+                text-align: center;
+            }
+
+            h2 {
+                font-size: 1em;
+                text-align: center;
+            }
+
+            .slot-machine {
+                flex-direction: column;
+            }
+
+            .circle {
+                width: 50px;
+                height: 50px;
+                margin: 10px 0;
+                font-size: 1em;
+            }
+
+            button {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>몇 번으로 찍을까</h1>
+    <h2>레전드 쌈뽕한 룰렛</h2>
+
+    <div class="slot-machine">
+        <div id="circle1" class="circle">1</div>
+        <div id="circle2" class="circle">2</div>
+        <div id="circle3" class="circle">3</div>
+        <div id="circle4" class="circle">4</div>
+        <div id="circle5" class="circle">5</div>
+    </div>
+
+    <button id="spinButton">Spin!</button>
+
+    <!-- 팝업 -->
+    <div id="popup" class="popup">
+        <h3>레전드 당첨번호</h3>
+        <p id="winningNumber"></p>
+    </div>
+
+    <!-- 배경 어둡게 처리 -->
+    <div id="overlay" class="overlay"></div>
+
+    <script>
+        const circles = [
+            document.getElementById('circle1'),
+            document.getElementById('circle2'),
+            document.getElementById('circle3'),
+            document.getElementById('circle4'),
+            document.getElementById('circle5')
+        ];
+
+        let currentIndex = 0;
+        let interval;
+
+        function spin() {
+            let speed = 50; // 초기 속도
+            let totalSpins = Math.floor(Math.random() * 10) + 20; // 최소 20회전 + 추가 랜덤 회전
+
+            function runSpin() {
+                circles[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % circles.length;
+                circles[currentIndex].classList.add('active');
+
+                if (totalSpins > 0) {
+                    totalSpins--;
+                    speed += 10; // 점점 느리게
+                    interval = setTimeout(runSpin, speed);
+                } else {
+                    clearTimeout(interval);
+                    setTimeout(showWinningNumber, 1000); // 1초 후 팝업 표시
+                }
+            }
+
+            runSpin();
+        }
+
+        function showWinningNumber() {
+            const winningNumber = circles[currentIndex].textContent;
+            document.getElementById('winningNumber').textContent = `행운의 숫자 : ${winningNumber}`;
+            document.getElementById('overlay').style.display = 'block'; // 배경 어둡게
+            document.getElementById('popup').style.display = 'block'; // 팝업 표시
+        }
+
+        document.getElementById('spinButton').addEventListener('click', () => {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none'; // 배경 원래대로
+            spin();
+        });
+    </script>
+
+</body>
+
+</html>
